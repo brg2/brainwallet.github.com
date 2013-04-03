@@ -774,11 +774,17 @@
     }
 
 	//Changed - Brett
+	var bitclientIsMobile = false;
+	if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
+		bitclientIsMobile = true;
+	}
     function txOnChangeSec() {
-    	//txGenSrcAddr();
-    	//return;
+    	/*if(!bitclientIsMobile) {
+    		txGenSrcAddr();
+    		return;
+    	}*/
         clearTimeout(timeout);
-        timeout = setTimeout(txGenSrcAddr, TIMEOUT - 250);
+        timeout = setTimeout(txGenSrcAddr, 300);
     }
     
     function txOnChangeSecPh() {
