@@ -775,10 +775,10 @@
 
 	//Changed - Brett
     function txOnChangeSec() {
-    	txGenSrcAddr();
-    	return;
+    	//txGenSrcAddr();
+    	//return;
         clearTimeout(timeout);
-        timeout = setTimeout(txGenSrcAddr, TIMEOUT);
+        timeout = setTimeout(txGenSrcAddr, TIMEOUT - 250);
     }
     
     function txOnChangeSecPh() {
