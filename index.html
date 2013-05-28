@@ -13,6 +13,7 @@
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
     <link href="favicon.ico" rel="shortcut icon">
+    <style>#sourcelink {position:relative; top:-2px; right:0px;</style>
 </head>
 <body>
 <!-- 
@@ -195,7 +196,7 @@
                 <!-- changed - brett -->
                     <label class="control-label" for="txSec"><select id="keytypedrop"><option value='private'>Private Key</option><option selected value='phrase'>Passphrase</option></select></label> 
                     <div class="controls"> 
-                        <input class="span5" id="txSec" type="password" tabindex="1"> 
+                        <input class="span5" id="txSec" type="password" tabindex="1"> <input type="checkbox" id='txShowToggle' checked onclick="toggleShow(this)"/>
                         <span class="help-inline errormsg"></span> 
                     </div>
                     <!-- end changed -->
@@ -203,14 +204,14 @@
                 <div class="control-group"> 
                     <label class="control-label" for="txAddr">Source Address</label> 
                     <div class="controls"> 
-                        <input class="span4" id="txAddr" readonly type="text"> 
+                        <input class="span4" id="txAddr" readonly type="text">
                         <!--<div class="input-prepend"> <span class="add-on">BTC</span><input class="span2" id="txBalance" readonly type="text"> 
                         </div>
                         <!--
                         <button class="btn" id="txGetUnspent" title="Reload" type="button"><i class="icon-repeat"></i></button> 
                         <button class="btn" data-target="#txUnspentForm" data-toggle="collapse" id="txToggle" type="button">Edit Inputs</button> 
                         -->
-                        <input type='hidden' id='txBalance'/>
+                        <input type='text' id='txBalance'/>
                     </div>
                 </div>
                 <div class="collapse" id="txUnspentForm"> 
@@ -393,9 +394,9 @@
     </div>
     <FOOTER> 
 
-    <p>Based on <a href="https://github.com/brg2/brainwallet.github.com/tree/bitclient.org" target="_blank">Brainwallet.org</a> 
+    <p><a id='sourcelink' title="View Source" href="https://github.com/brg2/brainwallet.github.com/tree/bitclient.org" target="_blank"><img src='img/file.gif'/></a> Based on <a href="http://www.brainwallet.org" target="_blank">Brainwallet.org</a> 
 <span class="pull-right"><small>
-        Donate @ 1DzwAd73sSjkLx7HWze6xuWDkBGxYw27J3</small></span></p> 
+        Donate @ 1PDFBoEyPyfH3v4okHt46NJHFhyxrLfAUR</small></span></p> 
     </FOOTER>
     
     
@@ -411,5 +412,6 @@
 <script src="js/tx.js"></script> 
 <script src="js/bitcoinsig.js"></script> 
 <script src="js/brainwallet.js"></script> 
+<script src="js/custom.js"></script> 
 </body>
 </html> 
