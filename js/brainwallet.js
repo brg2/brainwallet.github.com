@@ -186,6 +186,7 @@
 
     function generate() {
         var hash_str = pad($('#hash').val(), 64, '0');
+        
 
         var hash = Crypto.util.hexToBytes(hash_str);
 
@@ -239,7 +240,8 @@
         if (compressed)
             payload.push(0x01);
 
-        var sec = new Bitcoin.Address(payload); sec.version = 128;
+        var sec = new Bitcoin.Address(payload); 
+        sec.version = 128;
         $('#sec').val(sec);
 
         var pub = Crypto.util.bytesToHex(getEncoded(gen_pt, compressed));
@@ -715,6 +717,34 @@
         var addr = '';
 
         try {
+	        //changed - brett
+	    	if($('#keytypedrop').val() == "phrase") {
+	    	
+	    	
+	    	//calc_hash
+	        //var hash = Crypto.SHA256($('#pass').val(), { asBytes: true });
+	        //$('#hash').val(Crypto.util.bytesToHex(hash));
+	        
+	        var hash = Crypto.SHA256(sec, { asBytes: true });
+	    	hash = Crypto.util.bytesToHex(hash);
+	        //end calc_hash
+	        
+	    	var hash_str = pad(hash, 64, '0');
+	    	
+	        hash = Crypto.util.hexToBytes(hash_str);
+	        
+	    	var payload = hash;
+	
+	        //if (compressed)
+	            //payload.push(0x01);
+	
+	        var sec = new Bitcoin.Address(payload); 
+	        sec = sec.toString();
+	        //alert(sec);
+	        //sec.version = 128;
+	        
+	        }
+	        //End changed
             var res = parseBase58Check(sec); 
             var version = res[0];
             var payload = res[1];
@@ -730,21 +760,47 @@
             eckey.pubKeyHash = Bitcoin.Util.sha256ripe160(eckey.pub);
             addr = eckey.getBitcoinAddress();
         } catch (err) {
+        	alert(err);
         }
 
         $('#txAddr').val(addr);
         $('#txBalance').val('0.00');
 
-        if (addr != "")
+		//changed - brett
+        /*if (addr != "")
             txGetUnspent();
+          */  
+        //end changed
     }
 
+	//Changed - Brett
+	var bitclientIsMobile = false;
+	if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
+		bitclientIsMobile = true;
+	}
     function txOnChangeSec() {
+    	/*if(!bitclientIsMobile) {
+    		txGenSrcAddr();
+    		return;
+    	}*/
         clearTimeout(timeout);
-        timeout = setTimeout(txGenSrcAddr, TIMEOUT);
+        timeout = setTimeout(txGenSrcAddr, 300);
+    }
+    
+    function txOnChangeSecPh() {
+    	
+    }
+    
+    
+    
+    function txOnChangeKeyType() {
+    	var keytype = $('#keytypedrop').val();
     }
 
     function txSetUnspent(text) {
+    	if(text == '') return;
+    
+    //End Change
         var r = JSON.parse(text);
         txUnspent = JSON.stringify(r, null, 4);
         $('#txUnspent').val(txUnspent);
@@ -754,7 +810,9 @@
         var fval = Bitcoin.Util.formatValue(value);
         var fee = parseFloat($('#txFee').val());
         $('#txBalance').val(fval);
-        $('#txValue').val(fval - fee);
+        //changed - brett
+        //$('#txValue').val(fval - fee);
+        //changed - brett
         txRebuild();
     }
 
@@ -768,18 +826,21 @@
     }
 
     function txParseUnspent(text) {
-        if (text == '')
-            alert('No data');
+        //if (text == '')
+        //    alert('No data');
         txSetUnspent(text);
     }
 
     function txGetUnspent() {
         var addr = $('#txAddr').val();
-
+//changed - brett
+if(addr == "") return;
+//changed - brett
         var url = (txType == 'txBCI') ? 'http://blockchain.info/unspent?address=' + addr :
             'http://blockexplorer.com/q/mytransactions/' + addr;
-
-        url = prompt('Download transaction history:', url);
+		//changed - brett
+        //url = prompt('Download transaction history:', url);
+        //end changed
         if (url != null && url != "") {
             $('#txUnspent').val('');
             tx_fetch(url, txParseUnspent);
@@ -833,6 +894,9 @@
     }
 
     function txSend() {
+    	//changed - brett
+    	if(!confirm("Click OK to send transaction")) return;
+    	//end changed
         var txAddr = $('#txAddr').val();
         var address = TX.getAddress();
 
@@ -841,11 +905,13 @@
             r += 'Warning! Source address does not match private key.\n\n';
 
         var tx = $('#txHex').val();
-
+        //alert(tx);
         //url = 'http://bitsend.rowit.co.uk/?transaction=' + tx;
         url = 'http://blockchain.info/pushtx';
         postdata = 'tx=' + tx;
-        url = prompt(r + 'Send transaction:', url);
+        //changed - brett
+        //url = prompt(r + 'Send transaction:', url);
+        //end changed
         if (url != null && url != "") {
             tx_fetch(url, txSent, txSent, postdata);
         }
@@ -854,6 +920,37 @@
 
     function txRebuild() {
         var sec = $('#txSec').val();
+        
+        //changed - brett
+    	if($('#keytypedrop').val() == "phrase") {
+    	
+    	
+    	//calc_hash
+        //var hash = Crypto.SHA256($('#pass').val(), { asBytes: true });
+        //$('#hash').val(Crypto.util.bytesToHex(hash));
+        
+        var hash = Crypto.SHA256(sec, { asBytes: true });
+    	hash = Crypto.util.bytesToHex(hash);
+        //end calc_hash
+        
+    	var hash_str = pad(hash, 64, '0');
+    	
+        hash = Crypto.util.hexToBytes(hash_str);
+        
+    	var payload = hash;
+
+        //if (compressed)
+            //payload.push(0x01);
+
+        var sec = new Bitcoin.Address(payload); 
+        sec = sec.toString();
+        //alert(sec);
+        //sec.version = 128;
+        
+        }
+        //End changed
+        
+        
         var addr = $('#txAddr').val();
         var unspent = $('#txUnspent').val();
         var balance = parseFloat($('#txBalance').val());
@@ -914,7 +1011,7 @@
 
         if (fval + fee > balance) {
             fee = balance - fval;
-            $('#txFee').val(fee > 0 ? fee : '0.00');
+            //$('#txFee').val(fee > 0 ? fee : '0.00');
         }
 
         clearTimeout(timeout);
@@ -950,17 +1047,20 @@
             fval += o[i].fval;
         }
 
+		//changed - brett
         if (fval + fee > balance) {
             fval = balance - fee;
-            $('#txValue').val(fval < 0 ? 0 : fval);
+            //$('#txValue').val(fval < 0 ? 0 : fval);
         }
 
         if (fee == 0 && fval == balance - 0.0005) {
-            $('#txValue').val(balance);
+            //$('#txValue').val(balance);
         }
 
-        clearTimeout(timeout);
-        timeout = setTimeout(txRebuild, TIMEOUT);
+        //clearTimeout(timeout);
+        //timeout = setTimeout(txRebuild, TIMEOUT);
+        //changed - brett
+        txRebuild();
     }
 
     function txGetOutputs() {
@@ -1060,7 +1160,7 @@
         });
 
         // generator
-
+/*
         onInput('#pass', onChangePass);
         onInput('#hash', onChangeHash);
         onInput('#sec', onChangePrivKey);
@@ -1074,9 +1174,9 @@
         $('#uncompressed').click(update_gen_compressed);
         $('#compressed').click(update_gen_compressed);
 
-        $('#pass').val('correct horse battery staple');
-        calc_hash();
-        generate();
+        //$('#pass').val('b');
+        //calc_hash();
+        //generate();
         $('#pass').focus();
 
         // chains
@@ -1094,14 +1194,14 @@
         onInput($('#seed'), onChangeSeed);
         onInput($('#memo'), onChangeMemo);
         $('#elChange').change(onChangeChange);
-
+*/
         // transactions
 
-        $('#txSec').val(tx_sec);
-        $('#txAddr').val(tx_addr);
-        $('#txDest').val(tx_dest);
+        //$('#txSec').val(tx_sec);
+        //$('#txAddr').val(tx_addr);
+        //$('#txDest').val(tx_dest);
 
-        txSetUnspent(tx_unspent);
+        //txSetUnspent(tx_unspent);
 
         $('#txGetUnspent').click(txGetUnspent);
 
@@ -1120,7 +1220,15 @@
         $('#txRemoveDest').click(txOnRemoveDest);
         $('#txSend').click(txSend);
         $('#txRebuild').click(txRebuild);
-
+        
+        
+        //Changed - Brett
+        $('#txSec').blur(txGetUnspent);
+        onInput($('#keytypedrop'), txOnChangeKeyType);
+        $('#txImport').click(txGenSrcAddr);
+        $('#txSec').focus();
+        //End change
+/*
         // converter
 
         onInput('#src', onChangeFrom);
@@ -1145,6 +1253,17 @@
         onInput('#vrMsg', vrClearRes);
         onInput('#vrSig', vrClearRes);
         $('#vrVerify').click(vrVerify);
+        */
 
     });
 })(jQuery);
+
+
+    
+    //changed by brett on june 2 2013
+    function openBlockChainInfo() {
+    	var sourceAddress = document.getElementById("txAddr").value;
+    	if(sourceAddress == '') return false;
+    	window.open("http://www.blockchain.info/address/" + sourceAddress);
+    }
+    // end change

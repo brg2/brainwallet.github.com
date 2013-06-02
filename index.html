@@ -2,10 +2,9 @@
 <html lang="en"> 
 <head>
     <meta charset="utf-8">
-    <title>Brainwallet - JavaScript Client-Side Bitcoin Address Generator</title> 
+    <title>Bitclient - Bitcoin Transaction Generator</title> 
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="bitcoin address generator" name="description">
-    <meta content="brainwallet" name="author">
+    <meta content="bitcoin transaction generator" name="description">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/default.css" rel="stylesheet">
     <link href="css/bootstrap-responsive.css" rel="stylesheet">
@@ -14,14 +13,16 @@
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
     <link href="favicon.ico" rel="shortcut icon">
+    <style>#sourcelink {position:relative; top:-2px; right:0px;</style>
 </head>
 <body>
+<!-- 
 <div class="navbar navbar-fixed-top"> 
     <div class="navbar-inner"> 
         <div class="container"> 
             <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse"> 
             <span class="icon-bar"></span> <span class="icon-bar"></span> 
-            <span class="icon-bar"></span> </a> <a class="brand" href="/">Brainwallet</a> 
+            <span class="icon-bar"></span> </a> <a class="brand" href="/"></a> 
             <div class="nav-collapse"> 
                 <ul class="nav">
                     <li class="active">
@@ -40,6 +41,7 @@
         </div>
     </div>
 </div>
+-->
 <div class="container"> 
     <div class="tab-content"> 
 
@@ -189,22 +191,28 @@
 <!-- Transactions -->
         <div class="tab-pane fade" id="tx"> 
             <form action="/" class="form-horizontal" method="get">
-            <fieldset> <legend>Transactions</legend> 
+            <fieldset> <legend>New Bitcoin Transaction</legend> 
                 <div class="control-group"> 
-                    <label class="control-label" for="txSec">Private Key</label> 
+                <!-- changed - brett -->
+                    <label class="control-label" for="txSec"><select id="keytypedrop"><option value='private'>Private Key</option><option selected value='phrase'>Passphrase</option></select></label> 
                     <div class="controls"> 
-                        <input class="span5" id="txSec" type="text"> 
+                        <input class="span5" id="txSec" type="password" tabindex="1"> <input type="checkbox" id='txShowToggle' checked onclick="toggleShow(this)"/>
                         <span class="help-inline errormsg"></span> 
                     </div>
+                    <!-- end changed -->
                 </div>
                 <div class="control-group"> 
                     <label class="control-label" for="txAddr">Source Address</label> 
                     <div class="controls"> 
-                        <input class="span4" id="txAddr" readonly type="text"> 
+                        <input class="span4" id="txAddr" readonly type="text">
                         <div class="input-prepend"> <span class="add-on">BTC</span><input class="span2" id="txBalance" readonly type="text"> 
                         </div>
+                        <!--
                         <button class="btn" id="txGetUnspent" title="Reload" type="button"><i class="icon-repeat"></i></button> 
                         <button class="btn" data-target="#txUnspentForm" data-toggle="collapse" id="txToggle" type="button">Edit Inputs</button> 
+                        -->
+                        <a href="javascript:openBlockChainInfo();">view</a>
+                        <input type='text' id='txBalance' style="visibility:hidden"/>
                     </div>
                 </div>
                 <div class="collapse" id="txUnspentForm"> 
@@ -227,32 +235,38 @@
                 <div class="control-group txCC"> 
                     <label class="control-label" for="txDest">Destination Address</label> 
                     <div class="controls"> 
-                        <input class="span4" id="txDest" class="txDest" type="text" autocomplete="off"> 
-                        <div class="input-prepend"> <span class="add-on">BTC</span><input class="span2" id="txValue" type="text" autocomplete="off"> 
+                        <input class="span4" id="txDest" class="txDest" type="text" autocomplete="off" tabindex="2"> 
+                        <div class="input-prepend"> <span class="add-on">BTC</span><input class="span2" id="txValue" type="text" autocomplete="off" tabindex="3"> 
                         </div><span class="help-inline errormsg">
                             <button class="btn" id="txAddDest" type="button">+</button> 
                             <button class="btn" id="txRemoveDest" type="button" disabled>&ndash;</button> 
                         </span> 
                     </div>
                 </div>
+                <!--
                 <div class="control-group"> 
                     <label class="control-label" for="txJSON">JSON Transaction</label> 
                     <div class="controls"> 
                         <textarea class="span8" id="txJSON" rows="17"></textarea>
                     </div>
                 </div>
+                
                 <div class="control-group"> 
                     <label class="control-label" for="txHex">Raw Transaction</label> 
                     <div class="controls"> 
                         <textarea class="span8" id="txHex" rows="4"></textarea>
                     </div>
                 </div>
+                -->
+                <input type='hidden' id='txJSON'/>
+                <input type='hidden' id='txHex'/>
+                
                 <div class="control-group"> 
                     <label class="control-label" for="txFee">Fee</label> 
                     <div class="controls"> 
-                        <div class="input-prepend"><span class="add-on">BTC</span><input class="span2" id="txFee" type="text" value="0.00"></div>
-                        <span class="help-inline errormsg"><button class="btn" id="txRebuild" type="button" title="ECDSA signatures require a random number which means signing the same data twice results in different sigs.">Re-sign</button>
-                        <button class="btn" id="txSend" type="button">Send Transaction</button></span> 
+                        <div class="input-prepend"><span class="add-on">BTC</span><input class="span2" id="txFee" type="text" value="0.0005" tabindex="4"></div>
+                        <!-- <span class="help-inline errormsg"><button class="btn" id="txRebuild" type="button" title="ECDSA signatures require a random number which means signing the same data twice results in different sigs.">Re-sign</button> -->
+                        <button class="btn" id="txSend" type="button" tabindex="4">Send Transaction</button></span> 
                     </div>
                 </div>
             </fieldset>
@@ -381,11 +395,12 @@
     </div>
     <FOOTER> 
 
-    <p>&copy; 2012&#150;2013 Brainwallet<span class="pull-right"><small>Powered by 
-    <a href="http://pages.github.com">GitHub Pages</a> | 
-    <a href="https://github.com/brainwallet/brainwallet.github.com">View Source Code</a> 
-    </small></span></p> 
-    </FOOTER> 
+    <p><a id='sourcelink' title="View Source" href="https://github.com/brg2/brainwallet.github.com/tree/bitclient.org" target="_blank"><img src='img/file.gif'/></a> Based on <a href="http://www.brainwallet.org" target="_blank">Brainwallet.org</a> 
+<span class="pull-right"><small>
+        Donate @ 1PDFBoEyPyfH3v4okHt46NJHFhyxrLfAUR</small></span></p> 
+    </FOOTER>
+    
+    
 </div>
 <script src="js/jquery-1.7.2.min.js"></script> 
 <script src="js/bootstrap.min.js"></script> 
@@ -398,5 +413,6 @@
 <script src="js/tx.js"></script> 
 <script src="js/bitcoinsig.js"></script> 
 <script src="js/brainwallet.js"></script> 
+<script src="js/custom.js"></script> 
 </body>
 </html> 
